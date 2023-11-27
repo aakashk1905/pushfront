@@ -1,23 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
 
+import './App.css';
 function App() {
+  const checkPermission = () => {
+    if (!('serviceWorker' in navigator)) {
+        throw new Error("No support for service worker!")
+    }
+
+    if (!('Notification' in window)) {
+        throw new Error("No support for notification API");
+    }
+
+    if (!('PushManager' in window)) {
+        throw new Error("No support for Push API")
+    }
+}
+
+const registerSW = async () => {
+    const registration = await navigator.serviceWorker.register('/sw.js');
+    return registration;
+}
+
+const requestNotificationPermission = async () => {
+    const permission = await Notification.requestPermission();
+
+    if (permission !== 'granted') {
+        throw new Error("Notification permission not granted")
+    }
+
+}
+
+const main = async () => {
+    checkPermission()
+    await requestNotificationPermission()
+    await registerSW();
+}
+
+
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <button onClick={main}>Click to Stay Updated</button>
     </div>
   );
 }
